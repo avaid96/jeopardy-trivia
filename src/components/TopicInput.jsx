@@ -29,21 +29,31 @@ function TopicInput({ topics, setTopics, apiKey, setApiKey, setQuestions }) {
       for (const topic of newTopics) {
         if (topic.trim() === '') continue;
         
-        for (let points = 100; points <= 500; points += 100) {
-          const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{
-              role: "user",
-              content: `Create a trivia question for the topic "${topic}" with a difficulty level worth ${points} points. Format the response exactly like this example:
-              Question: Which planet is known as the Red Planet?
-              Answer: Mars`
-            }],
-            temperature: 0.7,
-          });
+        const response = await openai.chat.completions.create({
+          model: "gpt-3.5-turbo",
+          messages: [{
+            role: "user",
+            content: `Create 5 trivia questions for the topic "${topic}" with increasing difficulty levels. Format them exactly like this example, with points from 100 to 500:
+            100 Points
+            Question: What is the capital of France?
+            Answer: Paris
+            
+            200 Points
+            Question: Which river is the longest in Europe?
+            Answer: Volga River
+            
+            (continue with 300, 400, and 500 points)`
+          }],
+          temperature: 0.7,
+        });
 
-          const text = response.choices[0].message.content.trim();
-          const [question, answer] = text.split('\n').map(s => s.trim());
+        const text = response.choices[0].message.content.trim();
+        const questionBlocks = text.split(/\d{3} Points/).filter(block => block.trim());
 
+        questionBlocks.forEach((block, index) => {
+          const points = (index + 1) * 100;
+          const [question, answer] = block.trim().split('\n').map(s => s.trim());
+          
           generatedQuestions.push({
             id: `${topic}-${points}`,
             topic,
@@ -52,7 +62,7 @@ function TopicInput({ topics, setTopics, apiKey, setApiKey, setQuestions }) {
             points,
             seen: false,
           });
-        }
+        });
       }
 
       setQuestions(generatedQuestions);
@@ -113,7 +123,7 @@ function TopicInput({ topics, setTopics, apiKey, setApiKey, setQuestions }) {
       ))}
       <h2 className="text-xl font-semibold mt-4 mb-2">OpenAI API Key (Optional)</h2>
       <input
-        type="text"
+        type="password"
         value={apiKey}
         onChange={(e) => setApiKey(e.target.value)}
         placeholder="Enter your OpenAI API Key"

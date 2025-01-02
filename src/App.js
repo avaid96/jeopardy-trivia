@@ -31,6 +31,15 @@ function App() {
     localStorage.setItem('gamePublished', JSON.stringify(gamePublished));
   }, [topics, apiKey, questions, gamePublished]);
 
+  const validateQuestions = () => {
+    const hasEmptyQuestions = questions.some(q => !q.question.trim() || !q.answer.trim());
+    if (hasEmptyQuestions) {
+      alert('All questions must be filled out before publishing the game.');
+      return false;
+    }
+    return true;
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <h1 className="text-3xl font-bold text-center mb-6">Jeopardy-Style Trivia Game</h1>
@@ -51,7 +60,11 @@ function App() {
           />
           <button
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-            onClick={() => setGamePublished(true)}
+            onClick={() => {
+              if (validateQuestions()) {
+                setGamePublished(true);
+              }
+            }}
             disabled={questions.length === 0}
           >
             Publish Game
