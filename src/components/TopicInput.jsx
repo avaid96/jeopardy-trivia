@@ -34,9 +34,9 @@ function TopicInput({ topics, setTopics, apiKey, setApiKey, setQuestions }) {
             model: "gpt-3.5-turbo",
             messages: [{
               role: "user",
-              content: `Create a Jeopardy-style question for the topic "${topic}" with a point value of ${points}. Format the response exactly like this example:
-              Question: What is the capital of France?
-              Answer: Paris`
+              content: `Create a trivia question for the topic "${topic}" with a difficulty level worth ${points} points. Format the response exactly like this example:
+              Question: Which planet is known as the Red Planet?
+              Answer: Mars`
             }],
             temperature: 0.7,
           });

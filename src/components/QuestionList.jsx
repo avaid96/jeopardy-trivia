@@ -23,31 +23,19 @@ function QuestionList({ questions, setQuestions, topics, apiKey }) {
     setEditingQuestion(null);
   };
 
-  const handleAddManualQuestion = (topic) => {
-    const newQuestion = {
-      id: `${topic}-${Date.now()}`,
-      topic,
-      question: '',
-      answer: '',
-      points: 100,
-      seen: false,
-    };
-    setQuestions([...questions, newQuestion]);
-  };
-
   return (
     <div className="bg-white p-4 rounded shadow mb-4">
       <h2 className="text-xl font-semibold mb-2">Questions</h2>
       {topics.map(topic => (
         <div key={topic} className="mb-4">
-          <h3 className="text-lg font-medium">{topic}</h3>
-          <table className="w-full table-auto mt-2">
+          <h3 className="text-lg font-medium mb-2">{topic}</h3>
+          <table className="w-full table-fixed border-collapse">
             <thead>
               <tr>
-                <th className="px-2 py-1 border">Points</th>
-                <th className="px-2 py-1 border">Question</th>
-                <th className="px-2 py-1 border">Answer</th>
-                <th className="px-2 py-1 border">Actions</th>
+                <th className="w-1/12 px-2 py-1 border bg-gray-50">Points</th>
+                <th className="w-5/12 px-2 py-1 border bg-gray-50">Question</th>
+                <th className="w-5/12 px-2 py-1 border bg-gray-50">Answer</th>
+                <th className="w-1/12 px-2 py-1 border bg-gray-50">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -60,7 +48,7 @@ function QuestionList({ questions, setQuestions, topics, apiKey }) {
                     <td className="px-2 py-1 border">{q.answer}</td>
                     <td className="px-2 py-1 border text-center">
                       <button
-                        className="text-blue-500 mr-2"
+                        className="text-blue-500 hover:text-blue-700"
                         onClick={() => handleEdit(q)}
                       >
                         Edit
@@ -70,19 +58,12 @@ function QuestionList({ questions, setQuestions, topics, apiKey }) {
                 ))}
             </tbody>
           </table>
-          {!apiKey && (
-            <button
-              className="mt-2 px-3 py-1 bg-green-500 text-white rounded"
-              onClick={() => handleAddManualQuestion(topic)}
-            >
-              Add Question
-            </button>
-          )}
         </div>
       ))}
+      
       {editingQuestion && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded shadow w-1/3">
+          <div className="bg-white p-4 rounded shadow w-1/2">
             <h3 className="text-lg font-semibold mb-2">Edit Question</h3>
             <input
               type="text"
