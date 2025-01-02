@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import QuestionSlide from './QuestionSlide';
 
-function GamePlay({ questions: initialQuestions }) {
+function GamePlay({ questions: initialQuestions, onNewGame }) {
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [questions, setQuestions] = useState(initialQuestions);
 
@@ -30,7 +30,15 @@ function GamePlay({ questions: initialQuestions }) {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-6 text-center">Game Board</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold text-center">Game Board</h2>
+        <button
+          onClick={onNewGame}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          Start New Game
+        </button>
+      </div>
       
       {/* Categories Row */}
       <div className="grid grid-cols-5 gap-4 mb-4">

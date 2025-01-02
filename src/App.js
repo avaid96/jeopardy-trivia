@@ -40,6 +40,13 @@ function App() {
     return true;
   };
 
+  const resetGame = () => {
+    setGamePublished(false);
+    setQuestions([]);
+    setTopics([]);
+    // Don't reset API key as users might want to reuse it
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <h1 className="text-3xl font-bold text-center mb-6">Jeopardy-Style Trivia Game</h1>
@@ -71,7 +78,7 @@ function App() {
           </button>
         </>
       ) : (
-        <GamePlay questions={questions} />
+        <GamePlay questions={questions} onNewGame={resetGame} />
       )}
     </div>
   );

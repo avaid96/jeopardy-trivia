@@ -31,6 +31,11 @@ function TopicInput({ topics, setTopics, apiKey, setApiKey, setQuestions }) {
       return;
     }
 
+    if (!apiKey.startsWith('sk-')) {
+      alert('Please enter a valid OpenAI API key starting with "sk-"');
+      return;
+    }
+
     setLoading(true);
     setCost(0);
     const generatedQuestions = [];
@@ -45,60 +50,75 @@ function TopicInput({ topics, setTopics, apiKey, setApiKey, setQuestions }) {
       for (const topic of newTopics) {
         if (topic.name.trim() === '') continue;
         
-        const contextPrompt = topic.context.trim() 
-          ? `Generate questions appropriate ${topic.context}.`
-          : '';
+        try {
+          const contextPrompt = topic.context.trim() 
+            ? `Generate questions appropriate ${topic.context}.`
+            : '';
 
-        const response = await openai.chat.completions.create({
-          model: "gpt-3.5-turbo",
-          messages: [{
-            role: "user",
-            content: `Create 5 trivia questions for the topic "${topic.name}" with increasing difficulty levels from easy to very challenging. ${contextPrompt}
+          const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{
+              role: "user",
+              content: `Create 5 trivia questions for the topic "${topic.name}" with increasing difficulty levels from easy to very challenging. ${contextPrompt}
 
-            Format them exactly like this example:
-            100 Points
-            Question: What is the capital of France?
-            Answer: Paris
-            
-            200 Points
-            Question: Which river is the longest in Europe?
-            Answer: Volga River
-            
-            (continue with 300, 400, and 500 points)`
-          }],
-          temperature: 0.7,
-        });
-
-        // Calculate cost for this request
-        const requestCost = calculateCost(
-          response.usage.prompt_tokens,
-          response.usage.completion_tokens
-        );
-        totalCost += requestCost;
-
-        const text = response.choices[0].message.content.trim();
-        const questionBlocks = text.split(/\d{3} Points/).filter(block => block.trim());
-
-        questionBlocks.forEach((block, index) => {
-          const points = (index + 1) * 100;
-          const [question, answer] = block.trim().split('\n').map(s => s.trim());
-          
-          generatedQuestions.push({
-            id: `${topic.name}-${points}`,
-            topic: topic.name,
-            question: question.replace(/^Question:\s*/, ''),
-            answer: answer.replace(/^Answer:\s*/, ''),
-            points,
-            seen: false,
+              Format them exactly like this example:
+              100 Points
+              Question: What is the capital of France?
+              Answer: Paris
+              
+              200 Points
+              Question: Which river is the longest in Europe?
+              Answer: Volga River
+              
+              (continue with 300, 400, and 500 points)`
+            }],
+            temperature: 0.7,
           });
-        });
+
+          // Calculate cost for this request
+          const requestCost = calculateCost(
+            response.usage.prompt_tokens,
+            response.usage.completion_tokens
+          );
+          totalCost += requestCost;
+
+          const text = response.choices[0].message.content.trim();
+          const questionBlocks = text.split(/\d{3} Points/).filter(block => block.trim());
+
+          questionBlocks.forEach((block, index) => {
+            const points = (index + 1) * 100;
+            const [question, answer] = block.trim().split('\n').map(s => s.trim());
+            
+            generatedQuestions.push({
+              id: `${topic.name}-${points}`,
+              topic: topic.name,
+              question: question.replace(/^Question:\s*/, ''),
+              answer: answer.replace(/^Answer:\s*/, ''),
+              points,
+              seen: false,
+            });
+          });
+        } catch (topicError) {
+          console.error('Error generating questions for topic:', topic.name, topicError);
+          alert(`Failed to generate questions for topic "${topic.name}". Please check your API key and try again.`);
+          setLoading(false);
+          return;
+        }
       }
 
       setQuestions(generatedQuestions);
       setCost(totalCost);
     } catch (error) {
-      console.error('Error generating question:', error);
-      alert(`Error: ${error.message}`);
+      console.error('Error in question generation:', error);
+      if (error.message.includes('401')) {
+        alert('Invalid API key. Please check your OpenAI API key and try again.');
+      } else if (error.message.includes('429')) {
+        alert('Rate limit exceeded. Please wait a moment and try again.');
+      } else if (error.message.includes('insufficient_quota')) {
+        alert('OpenAI API quota exceeded. Please check your billing status.');
+      } else {
+        alert(`Error: ${error.message}. Please try again.`);
+      }
     } finally {
       setLoading(false);
     }
