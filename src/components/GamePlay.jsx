@@ -8,6 +8,9 @@ function GamePlay({ questions: initialQuestions }) {
 
   const handleQuestionClick = (question) => {
     setCurrentQuestion(question);
+    if (!question.seen) {
+      markAsSeen(question.id);
+    }
   };
 
   const markAsSeen = (id) => {
@@ -48,16 +51,10 @@ function GamePlay({ questions: initialQuestions }) {
                 key={`${topic}-${points}`}
                 className={`p-4 text-xl font-bold rounded transition-colors
                   ${question?.seen 
-                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                    ? 'bg-gray-400 text-gray-600 hover:bg-gray-500'
                     : 'bg-blue-500 text-white hover:bg-blue-600'
                   }`}
-                onClick={() => {
-                  if (question && !question.seen) {
-                    handleQuestionClick(question);
-                    markAsSeen(question.id);
-                  }
-                }}
-                disabled={question?.seen}
+                onClick={() => question && handleQuestionClick(question)}
               >
                 {points}
               </button>

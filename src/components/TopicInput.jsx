@@ -162,11 +162,13 @@ function TopicInput({ topics, setTopics, apiKey, setApiKey, setQuestions }) {
       
       <h2 className="text-xl font-semibold mt-4 mb-2">OpenAI API Key (Optional)</h2>
       <input
-        type="password"
+        type="text"
         value={apiKey}
         onChange={(e) => setApiKey(e.target.value)}
         placeholder="Enter your OpenAI API Key"
-        className="w-full mb-4 p-2 border rounded"
+        className="w-full mb-4 p-2 border rounded font-mono [--webkit-text-security:disc]"
+        style={{ WebkitTextSecurity: 'disc' }}
+        autoComplete="off"
       />
       
       <button
@@ -183,9 +185,13 @@ function TopicInput({ topics, setTopics, apiKey, setApiKey, setQuestions }) {
         </p>
       )}
       
-      {!apiKey && (
+      {!apiKey ? (
         <p className="text-sm text-gray-500 mt-2">
           Without an OpenAI API key, you'll need to enter questions manually in Step 2.
+        </p>
+      ) : (
+        <p className="text-sm text-gray-500 mt-2">
+          Questions will be generated using OpenAI's API. Approximate cost: $0.02
         </p>
       )}
     </div>
